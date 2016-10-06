@@ -73,6 +73,7 @@ var argv = require('yargs').argv;
             var out = decomp.run(function(err, files) {
                 if (!err) {
                     debug('inside extract, run complete. Extracted to ' + destPath);
+                    debug('Files: ' + fs.readdirSync(destPath));
                 }
                 callback(err);
             });
