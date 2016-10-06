@@ -5,7 +5,7 @@
 var argv = require('yargs').argv;
 
 (function() {
-    var fs = require('fs');
+    var fs = require('fs-extra');
     var os = require('os');
     var path = require('path');
     var Decompress = require('decompress');
@@ -61,22 +61,17 @@ var argv = require('yargs').argv;
             debug("archive type selected %s", archive_type);
 
             var destPath = path.join(__dirname, 'dist', version);
-            var decomp = new Decompress({
-                mode: '755'
-            })
-              .src(archive)
-              .dest(destPath)
-              .use(Decompress[archive_type]({
-                  strip: 1
-              }));
+            fs.ensureDirSync(destPath);
 
-            var out = decomp.run(function(err, files) {
-                if (!err) {
+            Decompress(archive, destPath)
+              .then(
+                function() {
                     debug('inside extract, run complete. Extracted to ' + destPath);
                     debug('Files: ' + fs.readdirSync(destPath));
-                }
-                callback(err);
-            });
+                    callback()
+                },
+                callback
+              );
         }
         catch (err) { callback(err); }
     }
