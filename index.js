@@ -33,7 +33,7 @@ function shutdown (e) {
     }
 };
 
-process.on('exit', shutdown);
+//process.on('exit', shutdown);
 
 function start_server(opts, callback) {
     try {
