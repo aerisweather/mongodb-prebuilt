@@ -25,6 +25,7 @@ var child_pid = 0;
 var killer;
 
 function shutdown (e) {
+    console.log('Shutdown stack: ' + new Error().stack);
     if (child_pid !== 0) {
         debug('killing mongod process: %d', child_pid);
         process.removeListener('exit', shutdown);
