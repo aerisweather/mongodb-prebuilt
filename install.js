@@ -12,6 +12,7 @@ var argv = require('yargs').argv;
     var download = require('mongodb-download');
     var debug = require('debug')('mongodb-prebuilt');
     var https_proxy_agent = require('https-proxy-agent');
+    var execSync = require('child_process').execSync;
 
 
     var LATEST_STABLE_RELEASE = "3.2.0";
@@ -63,15 +64,21 @@ var argv = require('yargs').argv;
             var destPath = path.join(__dirname, 'dist', version);
             fs.ensureDirSync(destPath);
 
-            Decompress(archive, destPath)
-              .then(
-                function() {
-                    debug('inside extract, run complete. Extracted to ' + destPath);
-                    debug('Files: ' + fs.readdirSync(destPath));
-                    callback()
-                },
-                callback
-              );
+            debug('Extracting ' + archive + ' to ' + destPath + ' ...');
+            try {
+                execSync('tar -xf ' + archive + ' -C ' + destPath + ' --strip-components=1');
+            }
+            catch (err) {
+                debug('Failed to extract MongoDB archive. Note that `mongodb-download`' +
+                    ' does not throw or log errors, when it fails to download archives. ' +
+                    'Instead, it creates an empty archive file, which cannot be extracted.' +
+                    'Run install with `DEBUG=mongodb-download,mongodb-prebuilt`, to see a log ' +
+                    'of were its downloading the archive from, then make sure that version of MongoDB exists.')
+                return callback(err);
+            }
+            debug('Extracted Files: ' + fs.readdirSync(destPath));
+
+            callback();
         }
         catch (err) { callback(err); }
     }
