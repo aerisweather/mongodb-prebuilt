@@ -89,22 +89,21 @@ function start_server(opts, callback) {
                 if (opts.exit_callback) {
                     opts.exit_callback(child.status);
                 }
-                callback(child.status);
+                callback(new Error(`mongodb failed to start: ${child.stderr.toString()}`));
+                return;
             }
 
             // need to catch child pid
             var child_pid_match = child.stdout.toString().match(/forked process:\s+(\d+)/i);
             child_pid = child_pid_match[1];
 
-            // if mongod started, spawn killer
-            if (child.status === 0) {
-                debug('starting mongokiller.js, ppid:%d\tmongod pid:%d', process.pid, child_pid);
-                killer = proc.spawn("node", [path.join(__dirname, "binjs", "mongokiller.js"), process.pid, child_pid], {
-                    stdio: 'ignore',
-                    detached: true
-                });
-                killer.unref();
-            }
+            //  spawn killer
+            debug('starting mongokiller.js, ppid:%d\tmongod pid:%d', process.pid, child_pid);
+            killer = proc.spawn("node", [path.join(__dirname, "binjs", "mongokiller.js"), process.pid, child_pid], {
+                stdio: 'ignore',
+                detached: true
+            });
+            killer.unref();
 
             callback(null, child.status);
         }
