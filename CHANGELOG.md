@@ -1,3 +1,8 @@
+# v6.0.1
+
+* FIX: Throw error with `stderr` message, when `mongod` fails
+* FIX: Do not invoke callback multiple times, when `mongod` fails
+
 # v6.0.0
 
 * MOD: **BREAKING** `start_server` always resolves/errors using the provided callback function (see #12)
